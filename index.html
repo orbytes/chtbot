@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hamburguesas El Poderoso - Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f7f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header {
+            background-color: #ff7043;
+            color: white;
+            padding: 15px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .chat-box {
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: #fafafa;
+            flex-grow: 1;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 10px;
+            max-width: 80%;
+        }
+        .user-message {
+            background-color: #ffeb3b;
+            align-self: flex-end;
+        }
+        .bot-message {
+            background-color: #e3f2fd;
+            align-self: flex-start;
+        }
+        .input-container {
+            display: flex;
+            padding: 10px;
+            background-color: #ff7043;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            border-radius: 20px;
+            border: 2px solid #ff7043;
+            outline: none;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px;
+            background-color: #ffeb3b;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #ff9800;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-header">Hamburguesas El Poderoso ??</div>
+        <div class="chat-box" id="chatBox">
+            <!-- Aquí aparecerán los mensajes -->
+        </div>
+        <div class="input-container">
+            <input type="text" id="userInput" placeholder="Escribe tu pedido..." />
+            <button id="sendBtn">??</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("sendBtn").addEventListener("click", function() {
+            var userInput = document.getElementById("userInput").value;
+            if (userInput.trim() !== "") {
+                appendMessage(userInput, "user");
+                document.getElementById("userInput").value = ""; // Limpiar el input
+                sendToAPI(userInput);
+            }
+        });
+
+        function appendMessage(text, sender) {
+            var messageDiv = document.createElement("div");
+            messageDiv.classList.add("message");
+            messageDiv.classList.add(sender === "user" ? "user-message" : "bot-message");
+            messageDiv.innerText = text;
+            document.getElementById("chatBox").appendChild(messageDiv);
+            document.getElementById("chatBox").scrollTop = document.getElementById("chatBox").scrollHeight;
+        }
+
+        function sendToAPI(userMessage) {
+            // Esto es un ejemplo, necesitas la API de OpenAI para enviar y recibir mensajes
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "https://api.openai.com/v1/chat/completions", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("Authorization", "Bearer TU_CLAVE_API");
+
+            var data = JSON.stringify({
+                model: "gpt-3.5-turbo",
+                messages: [
+                    {"role": "system", "content": "Eres un asistente amigable de hamburguesería."},
+                    {"role": "user", "content": userMessage}
+                ]
+            });
+
+            xhr.onload = function() {
+                if (xhr.status == 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    var botMessage = response.choices[0].message.content;
+                    appendMessage(botMessage, "bot");
+                } else {
+                    console.error("Error en la API", xhr.statusText);
+                }
+            };
+
+            xhr.send(data);
+        }
+    </script>
+
+</body>
+</html>
